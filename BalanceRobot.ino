@@ -22,6 +22,7 @@
 #include <Wire.h>
 #include <avr/io.h>
 #include "IMU.h"
+#include "PID.h"
 #include "Wheels.h"
 
 // MPU6050 I2C Address

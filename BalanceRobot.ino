@@ -325,21 +325,9 @@ void loop() {
 	if (dataReady) {			
 		MPU6050_sensor_read();
 
-		//MPU6050_Burst_sensor_read();
-
 		//IMU_weighted();
 		IMU_weightedSlim();
 		//IMU_kalman();
-
-		PORTF ^= RIGHT_STEP_PIN;
-
-		//Serial.print(F("AcX = ")); Serial.print(ATTITUDE_VECTOR.x);
-		//Serial.print(F(" | AcY = ")); Serial.print(ATTITUDE_VECTOR.y);
-		//Serial.print(F(" | AcZ = ")); Serial.println(ATTITUDE_VECTOR.z);
-		Serial.print(F(" | PITCH = ")); Serial.println(EULER_DATA.pitch);
-		//Serial.print(F(" GyX = ")); Serial.print(GYRO_DATA.x);
-		//Serial.print(F(" | GyY = ")); Serial.print(GYRO_DATA.y);
-		//Serial.print(F(" | GyZ = ")); Serial.println(GYRO_DATA.z);
 
 		dataReady = 0;
 	}

@@ -21,7 +21,7 @@
 
 /*
  * This library contains a Inertial measurement unit (IMU) programmed 
- * for a 6 axis Accelerometer/Gyro
+ * with different methods of processing data from a MEMS sensor.
  */
 
 #ifndef IMU_H_
@@ -30,27 +30,10 @@
 #include <avr/io.h>
 #include <math.h>
 
-#define TIME_CONST 0.001			//Used to calculate gyro data to a 1ms time peroid
-#define GYRO_WEIGHT 20				//Weight applied to gyro data
-
-/*
- * For the MPU 6050 the Accelerometer sensitivity ranges are as follows
- * Accelerometer Scale Range (g): 2g and LSB/g: 16384
- * Accelerometer Scale Range (g): 4g and LSB/g: 8192 
- * Accelerometer Scale Range (g): 8g and LSB/g: 4096
- * Accelerometer Scale Range (g): 16g and LSB/g: 2048
- */
-#define ACCEL_BASE_SENSITIVITY 16384.0	//Accel Sensitivity supplied by the manufacturer
-
-/*
- * For the MPU 6050 the Gyro sensitivity ranges are as follows
- * Gyro Scale Range (deg/sec): +-250 and LSB/deg/sec: 131
- * Gyro Scale Range (deg/sec): +-500 and LSB/deg/sec: 65.5
- * Gyro Scale Range (deg/sec): +-1000 and LSB/deg/sec: 32.8
- * Gyro Scale Range (deg/sec): +-2000 and LSB/deg/sec: 16.4
- */
-#define GYRO_BASE_SENSITIVITY 131.0	//Accel Sensitivity supplied by the manufacturer
-
+#define GYRO_WEIGHT 			20.0f				//Weight applied to gyro data
+#define GYRO_WEIGHT_AVERAGE		1.0f / (1.0f + GYRO_WEIGHT)
+#define DEG_TO_RADIANS 			M_PI / 180
+#define FLOAT_SIGN				0x80000000UL
 
 #ifdef __cplusplus
 extern "C" {
@@ -61,31 +44,48 @@ typedef struct {
 } Sensor_Data_t;
 
 typedef struct {
-	double x, y, z, w;
+	int16_t ax, ay, az, gx, gy, gz;
+} Sensor_Calibration_t;
+
+typedef struct {
+	float x, y, z;
 } Vector_Data_t;
 
 typedef struct {
-	double gx, gy, gz;
-} Gyro_Data_t;
+	float pitch, roll;
+} Euler_Data_t;
 
-typedef struct {
-	double ax, ay, az, gx, gy, gz;
-} Sensor_Calibration_t;
+typedef union {
+	float f;
+	uint32_t i;
+} Float2Int_u;
 
 extern Sensor_Data_t SENSOR_DATA;
-extern Vector_Data_t VECTOR_DATA;
+extern Vector_Data_t ATTITUDE_VECTOR;
+extern Euler_Data_t EULER_DATA;
 
-void IMU_init(uint8_t aDivider, uint8_t gDivider, 
+void IMU_init(float aDivider, float gDivider, 
 	int16_t axCal, int16_t ayCal, int16_t azCal, 
-	int16_t gxCal, int16_t gyCal, int16_t gzCal);
+	int16_t gxCal, int16_t gyCal, int16_t gzCal,
+	float sampleTime);
 
-void IMU_calc();
+void IMU_kalman();
+void IMU_weighted();
+void IMU_weightedSlim();
 
-void setupPID();
-void setupTimers();
-void startTimer();
-void stopTimer();
-void setData(uint16_t feed, uint8_t direction);
+/*
+ * INLINE Functions
+ */
+
+inline float IMU_invSqRt(float value) {
+	float x;
+	Float2Int_u f2i;
+	x = value * 0.5F;
+	f2i.f  = value;
+	f2i.i  = 0x5F375A86 - (f2i.i >> 1);
+	f2i.f  = f2i.f * (1.5F - (x * f2i.f * f2i.f));
+	return f2i.f;
+}
 
 #ifdef __cplusplus
 } // extern "C"

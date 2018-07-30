@@ -26,56 +26,56 @@
 #include "Wheels.h"
 
 // MPU6050 I2C Address
-#define MPU6050_ADDRESS			0x68
+#define MPU6050_ADDRESS		0x68
 
 /*
  * MPU6050 Data Register Macros
  */
-#define MPU6050_CONFIG			0x1A
-#define GYRO_CONFIG				0x1B
-#define ACCEL_CONFIG			0x1C
-#define SMPRT_DIV				0x25
-#define FIFO_EN_REG				0x35
-#define INT_ENABLE				0x38
-#define ACCEL_XOUT_H			0x3B
-#define USER_CTRL				0x6A
-#define PWR_MGMT_1				0x6B
-#define FIFO_COUNT_H			0x72
-#define FIFO_R_W				0x74
-#define WHO_AM_I				0x75
+#define MPU6050_CONFIG		0x1A
+#define GYRO_CONFIG			0x1B
+#define ACCEL_CONFIG		0x1C
+#define SMPRT_DIV			0x25
+#define FIFO_EN_REG			0x35
+#define INT_ENABLE			0x38
+#define ACCEL_XOUT_H		0x3B
+#define USER_CTRL			0x6A
+#define PWR_MGMT_1			0x6B
+#define FIFO_COUNT_H		0x72
+#define FIFO_R_W			0x74
+#define WHO_AM_I			0x75
 
 /*
  * MPU6050 Data Bit Settings Macro
  */
 
 // Data Ready Enable setting
-#define DATA_RDY_EN		0
+#define DATA_RDY_EN			0
 
 // Digital Low Pass Filter (DLPF) settings
-#define DLPF_CFG_0		0
-#define DLPF_CFG_1		1
-#define DLPF_CFG_2		2
+#define DLPF_CFG_0			0
+#define DLPF_CFG_1			1
+#define DLPF_CFG_2			2
 
 // Full Scale Range Gyroscope Settings
-#define FS_SEL_0		3
-#define FS_SEL_1		4
+#define FS_SEL_0			3
+#define FS_SEL_1			4
 
 // Full Scale Range Accelerometer Settings
-#define AFS_SEL_0		3
-#define AFS_SEL_1		4
+#define AFS_SEL_0			3
+#define AFS_SEL_1			4
 
 // FIFO_EN Buffer Settings
-#define FIFO_EN_BIT		6
-#define ACCEL_FIFO_EN	3
-#define ZG_FIFO_EN		4
-#define YG_FIFO_EN		5
-#define XG_FIFO_EN		6
+#define FIFO_EN_BIT			6
+#define ACCEL_FIFO_EN		3
+#define ZG_FIFO_EN			4
+#define YG_FIFO_EN			5
+#define XG_FIFO_EN			6
 
 // PWR_MGMT_1 Settings
-#define CLK_SEL_0		0
-#define CLK_SEL_1		1
-#define CLK_SEL_2		2
-#define MPU_SLEEP 		6
+#define CLK_SEL_0			0
+#define CLK_SEL_1			1
+#define CLK_SEL_2			2
+#define MPU_SLEEP 			6
 
 
 //MPU6050 Data Packet Size
@@ -110,7 +110,7 @@
  * Accelerometer Scale Range (g): 8g and LSB/g: 4096
  * Accelerometer Scale Range (g): 16g and LSB/g: 2048
  */
-#define ACCEL_BASE_SENSITIVITY 16384.0F	//Accel Sensitivity supplied by the manufacturer
+#define ACCEL_BASE_SENSITIVITY 	16384.0F	//Accel Sensitivity supplied by the manufacturer
 
 /*
  * For the MPU 6050 the Gyro sensitivity ranges are as follows
@@ -119,7 +119,7 @@
  * Gyro Scale Range (deg/sec): +-1000 and LSB/deg/sec: 32.8
  * Gyro Scale Range (deg/sec): +-2000 and LSB/deg/sec: 16.4
  */
-#define GYRO_BASE_SENSITIVITY 131.0F	//Accel Sensitivity supplied by the manufacturer
+#define GYRO_BASE_SENSITIVITY 	131.0F	//Accel Sensitivity supplied by the manufacturer
 
 volatile uint8_t dataReady;
 
@@ -195,8 +195,6 @@ void MPU6050_read_byte(int start, uint8_t *data) {
 
 int8_t MPU6050_init(uint8_t dlpf, uint8_t gSensitivy, uint8_t aSensitivy) {
 	Wire.begin();
-
-	//Wire.setClock(400000); // 400kHz I2C clock. Comment this line if having compilation difficulties
 
 	uint8_t data;								//Used to both read and write data to the MPU6050 during init
 
@@ -285,16 +283,14 @@ ISR(TIMER0_COMPA_vect) {
 }
 
 void setup() {
-	Serial.begin(115200);
-
-	//while (!Serial); // wait for Leonardo enumeration, others continue immediately	
+	Serial.begin(115200);	
 
 	dataReady = 1;
 
 	//Initializing the MPU6050
 	MPU6050_init(LOW_PASS_FILTER, ACCEL_SENSITIVITY, GYRO_SENSITIVITY);
 
-	//Initializing the IMU unit
+	//Initializing the IMU
 	IMU_init(
 		(ACCEL_BASE_SENSITIVITY / (float)_BV(ACCEL_SENSITIVITY)),
 		(GYRO_BASE_SENSITIVITY / (float)_BV(GYRO_SENSITIVITY)),

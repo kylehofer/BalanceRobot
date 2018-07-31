@@ -20,7 +20,7 @@
  */
 
 /*
- * This library contains a Interrupt driven PWM output to control stepper motor for the ATmega32u4
+ * This library contains a Interrupt driven PWM output to control stepper motors for popular arduino models
  */
 
 
@@ -33,16 +33,35 @@
  * PIN Macros
  */
 
-#define LEFT_DIRECTION_PIN _BV(4)	//PF4
-#define LEFT_STEP_PIN _BV(5)		//PF5
-#define RIGHT_DIRECTION_PIN _BV(6)	//PF6
-#define RIGHT_STEP_PIN _BV(7)		//PF7
-#define MS1_PIN _BV(4)				//PB4
-#define MS2_PIN _BV(5)				//PB5
-#define MS3_PIN _BV(6)				//PB6
+// PIN Registers for the Arduino Mega, Arduino Uno and Arduino Pro Mini
+#if defined(__AVR_ATmega328P__) || defined(__AVR_ATmega328P__) || defined(__AVR_ATmega2560__) 
+	#define M_PORT						PORTB			
+	#define M_DDR						DDRB
 
-#define CLEAR_LEFT_DIRECTION_PIN ~LEFT_DIRECTION_PIN
-#define CLEAR_RIGHT_DIRECTION_PIN ~RIGHT_DIRECTION_PIN
+ // PIN Registers for the Arduino Pro Micro
+#elif defined(__AVR_ATmega32U4__)
+	#define M_PORT						PORTF			
+	#define M_DDR						DDRF
+#endif  /* PIN Registers */
+
+// PIN Numbers for the Arduino Uno, Arduino Pro Mini
+#if defined(__AVR_ATmega328P__) || defined(__AVR_ATmega328P__)
+	#define LEFT_DIRECTION_PIN 			_BV(2)
+	#define LEFT_STEP_PIN 				_BV(3)
+	#define RIGHT_DIRECTION_PIN 		_BV(4)
+	#define RIGHT_STEP_PIN 				_BV(5)
+
+// PIN Numbers for the Arduino Mega, Arduino Pro Micro
+#elif defined(__AVR_ATmega32U4__) || defined(__AVR_ATmega2560__)
+	#define LEFT_DIRECTION_PIN 			_BV(4)
+	#define LEFT_STEP_PIN 				_BV(5)
+	#define RIGHT_DIRECTION_PIN 		_BV(6)
+	#define RIGHT_STEP_PIN 				_BV(7)
+
+#endif /* PIN Numbers */
+
+#define CLEAR_LEFT_DIRECTION_PIN 	~LEFT_DIRECTION_PIN
+#define CLEAR_RIGHT_DIRECTION_PIN 	~RIGHT_DIRECTION_PIN
 
 #ifdef __cplusplus
 extern "C" {

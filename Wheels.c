@@ -24,24 +24,23 @@
 static uint16_t L_FEED, R_FEED;
 
 ISR(TIMER1_COMPA_vect) {
-	PORTF ^= LEFT_STEP_PIN;
+	M_PORT ^= LEFT_STEP_PIN;
 	OCR1A += L_FEED;
 }
 
 ISR(TIMER1_COMPB_vect) {
-	PORTF ^= RIGHT_STEP_PIN;
+	M_PORT ^= RIGHT_STEP_PIN;
 	OCR1B += R_FEED;
 }
 
-
 void WHEELS_setLeft(uint16_t feed, uint8_t direction) {
 	L_FEED = feed;
-	PORTF = (PORTF & CLEAR_LEFT_DIRECTION_PIN) | (direction ? LEFT_DIRECTION_PIN : 0);		
+	M_PORT = (M_PORT & CLEAR_LEFT_DIRECTION_PIN) | (direction ? LEFT_DIRECTION_PIN : 0);		
 }
 
 void WHEELS_setRight(uint16_t feed, uint8_t direction) {
 	R_FEED = feed;
-	PORTF = (PORTF & CLEAR_RIGHT_DIRECTION_PIN) | (direction ? RIGHT_DIRECTION_PIN : 0);		
+	M_PORT = (M_PORT & CLEAR_RIGHT_DIRECTION_PIN) | (direction ? RIGHT_DIRECTION_PIN : 0);		
 }
 
 void WHEELS_init() {
@@ -49,11 +48,7 @@ void WHEELS_init() {
 	L_FEED = R_FEED = 16000;
 
 	//Setting Pins for Outputs
-	DDRF |= (LEFT_DIRECTION_PIN | LEFT_STEP_PIN | RIGHT_DIRECTION_PIN | RIGHT_STEP_PIN);	//Setting Motor pins at outputs
-	DDRB |= (MS1_PIN | MS2_PIN | MS3_PIN);	//Setting Microstep pins as outputs
-
-	//Setting Microstep values
-	//PORTB |= MS1_PIN | MS2_PIN | MS3_PIN;
+	M_DDR |= (LEFT_DIRECTION_PIN | LEFT_STEP_PIN | RIGHT_DIRECTION_PIN | RIGHT_STEP_PIN);	//Setting Motor pins at outputs
 
 	cli();									//Disable interrupts
 	TCCR1A = 0;

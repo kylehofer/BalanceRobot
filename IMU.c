@@ -47,9 +47,15 @@ float KALMAN_RATE;			// Unbiased rate calculated from the rate and the calculate
 float p00, p01, p10, p11;	// Kalman Error matrix
 
 /*
- * 1 Dimension Adjusting Kalman filter using readings from a MEMS Sensor to calculate the Roll.
+ * 1 Dimension Adjusting Kalman filter using readings from a IMU Sensor to calculate the Roll.
  * Estimates the possible error of the sensors readings, and uses those estimates
  * to combine the sensors readings into our final estimate.
+ * Takens 2 inputs, the Roll measured By Accelerometer, and Rate of Roll measured by Gyroscope.
+ * Provides 1 output, the Estimated Roll.
+ * Taken from TKJ's Guide in Kalman filters, with code optimizations.
+ * http://blog.tkjelectronics.dk/2012/09/a-practical-approach-to-kalman-filter-and-how-to-implement-it/
+ * This implementation can be rather slim as it only has 2 inputs and 1 output, so some matrices
+ * can be substituded for single variables.
  */
 
 void IMU_kalman() {
@@ -69,7 +75,7 @@ void IMU_kalman() {
 
 	/* 
 	 * Update estimation error covariance  Project the error covariance ahead
-	 * Estimate the error matrix based on previous error matrix
+	 * Estimate the error matrix based on previous error matrix, 
 	 * The lower values of this matrix the more accurate we believe our estimate will be
 	 */
 	float P11_SAMPLE = SAMPLE_TIME * p11; // Grouping Similar Calcuations
@@ -79,13 +85,13 @@ void IMU_kalman() {
 	p11 += KALMAN_GYRO_BIAS * SAMPLE_TIME;
 
 	// Innovation covariance predicting how accurate our measurements.
-	float S = p00 + KALMAN_NOISE_VAR;
+	float S = 1 / (p00 + KALMAN_NOISE_VAR);
 
 
 	// Calculating Kalman Gain, which is our estimate vs our measurement
 	// Larger values trust our estimate, and lower values trust our measurements
-	float K0 = p00 / S;
-	float K1 = p10 / S;
+	float K0 = p00 * S;
+	float K1 = p10 * S;
 
 	// Calculating the difference in the measured angle
 	// and the predicted angle
@@ -106,7 +112,7 @@ void IMU_kalman() {
 }
 
 /*
- * 1 Dimension Constant Kalman filter using readings from a MEMS Sensor to calculate the Roll.
+ * 1 Dimension Constant Kalman filter using readings from a IMU Sensor to calculate the Roll.
  * Applies the readings together using a constant weighted average.
  * A slimmed version of Starlino Electronics's weighted Kalman filter in "A Guide To using IMU".
  * http://www.starlino.com/imu_guide.html
@@ -145,7 +151,7 @@ void IMU_weightedSlim() {
 }
 
 /*
- * 3 Dimension Weighted Kalman filter using readings from a MEMS Sensor to calculate the Roll.
+ * 3 Dimension Weighted Kalman filter using readings from a IMU Sensor to calculate the Roll.
  * Applies the readings together using a constant weighted average.
  * This version was converted from Starlino Electronics's weighted Kalman filter in "A Guide To using IMU".
  * http://www.starlino.com/imu_guide.html
@@ -235,7 +241,7 @@ void IMU_init(float aDivider, float gDivider,
 	// A scaler for converting Raw Accel data to G's
 	ACCEL_SCALER = 1.0f / aDivider;
 
-	// A scaler for converting Raw Gyro data to Rad/Sample
+	// A scaler for converting Raw Gyro data to Rad/SAMPLE_TIME
 	GYRO_SCALER =  (sampleTime * DEG_TO_RADIANS) / gDivider;
 
 	// Loading calibration data

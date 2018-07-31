@@ -21,34 +21,34 @@
 
 #include "Wheels.h"
 
-static uint16_t L_FEED, R_FEED;
+static uint16_t FEED_L, FEED_R;
 
 ISR(TIMER1_COMPA_vect) {
-	M_PORT ^= LEFT_STEP_PIN;
-	OCR1A += L_FEED;
+	PORT_M ^= LEFT_STEP_PIN;
+	OCR1A += FEED_L;
 }
 
 ISR(TIMER1_COMPB_vect) {
-	M_PORT ^= RIGHT_STEP_PIN;
-	OCR1B += R_FEED;
+	PORT_M ^= RIGHT_STEP_PIN;
+	OCR1B += FEED_R;
 }
 
 void WHEELS_setLeft(uint16_t feed, uint8_t direction) {
-	L_FEED = feed;
-	M_PORT = (M_PORT & CLEAR_LEFT_DIRECTION_PIN) | (direction ? LEFT_DIRECTION_PIN : 0);		
+	FEED_L = feed;
+	PORT_M = (PORT_M & CLEAR_LEFT_DIRECTION_PIN) | (direction ? LEFT_DIRECTION_PIN : 0);		
 }
 
 void WHEELS_setRight(uint16_t feed, uint8_t direction) {
-	R_FEED = feed;
-	M_PORT = (M_PORT & CLEAR_RIGHT_DIRECTION_PIN) | (direction ? RIGHT_DIRECTION_PIN : 0);		
+	FEED_R = feed;
+	PORT_M = (PORT_M & CLEAR_RIGHT_DIRECTION_PIN) | (direction ? RIGHT_DIRECTION_PIN : 0);		
 }
 
 void WHEELS_init() {
 
-	L_FEED = R_FEED = 16000;
+	FEED_L = FEED_R = 16000;
 
 	//Setting Pins for Outputs
-	M_DDR |= (LEFT_DIRECTION_PIN | LEFT_STEP_PIN | RIGHT_DIRECTION_PIN | RIGHT_STEP_PIN);	//Setting Motor pins at outputs
+	DDR_M |= (LEFT_DIRECTION_PIN | LEFT_STEP_PIN | RIGHT_DIRECTION_PIN | RIGHT_STEP_PIN);	//Setting Motor pins at outputs
 
 	cli();									//Disable interrupts
 	TCCR1A = 0;
@@ -60,8 +60,8 @@ void WHEELS_init() {
 
 void WHEELS_start() {
 	TIMSK1 |= _BV(OCIE1A) | _BV(OCIE1B);	//Output compare register A Enable
-	OCR1A = TCNT1 + L_FEED;
-	OCR1B = TCNT1 + R_FEED;
+	OCR1A = TCNT1 + FEED_L;
+	OCR1B = TCNT1 + FEED_R;
 }
 
 void WHEELS_stop() {

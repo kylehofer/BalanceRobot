@@ -35,13 +35,13 @@
 
 // PIN Registers for the Arduino Mega, Arduino Uno and Arduino Pro Mini
 #if defined(__AVR_ATmega328P__) || defined(__AVR_ATmega328P__) || defined(__AVR_ATmega2560__) 
-	#define M_PORT						PORTB			
-	#define M_DDR						DDRB
+	#define PORT_M						PORTB			
+	#define DDR_M						DDRB
 
  // PIN Registers for the Arduino Pro Micro
 #elif defined(__AVR_ATmega32U4__)
-	#define M_PORT						PORTF			
-	#define M_DDR						DDRF
+	#define PORT_M						PORTF			
+	#define DDR_M						DDRF
 #endif  /* PIN Registers */
 
 // PIN Numbers for the Arduino Uno, Arduino Pro Mini
